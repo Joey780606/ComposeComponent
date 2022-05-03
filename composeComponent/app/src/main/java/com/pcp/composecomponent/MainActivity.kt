@@ -4,33 +4,33 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.pcp.composecomponent.ui.theme.ComposeComponentTheme
-import com.pcp.composecomponent.ui.theme.Purple200
+import com.pcp.composecomponent.ui.theme.*
 
 /*
   Author: Joey yang
@@ -39,6 +39,7 @@ import com.pcp.composecomponent.ui.theme.Purple200
   First screen:
     1. Column
     2. Text
+    3. Button
 
  */
 class MainActivity : ComponentActivity() {
@@ -113,12 +114,36 @@ fun FirstScreen(navController: NavController) {
 //                    )
 //                ),
             )
-            Button( //Button只是一個容器,裡面要放文字,就是要再加一個Text
-                modifier = Modifier.wrapContentWidth(),
-                onClick = {}) {
-                Text(text = "Hello")
-            }
         }
+        ButtonDemo()
+    }
+}
+
+@Composable
+fun ButtonDemo() {
+    // 重要,下面三行是 interactionSource 的使用
+    val interactionSourceTest = remember { MutableInteractionSource() }
+    val pressState = interactionSourceTest.collectIsPressedAsState()
+    val borderColor = if (pressState.value) YellowFFEB3B else Green4CAF50 //Import com.pcp.composecomponent.ui.theme.YellowFFEB3B
+
+    Button( //Button只是一個容器,裡面要放文字,就是要再加一個Text
+        modifier = Modifier.wrapContentWidth(),
+        //enabled = false,
+        enabled = true, //如果 enabled 設為false, border, interactionSource就不會有變化
+        interactionSource = interactionSourceTest,
+        elevation = ButtonDefaults.elevation(
+            defaultElevation = 6.dp,
+            pressedElevation = 8.dp,
+            disabledElevation = 2.dp
+        ),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(5.dp, color = borderColor),
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.White,
+            contentColor = Color.Red),
+        contentPadding = PaddingValues(4.dp, 3.dp, 2.dp, 1.dp),
+        onClick = { Log.v("Test", "${pressState.value}")}) {
+        Text(text = "Hello joey 12121212")
     }
 }
 
