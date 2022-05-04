@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -35,9 +36,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -53,7 +57,9 @@ import kotlinx.coroutines.selects.selectUnbiased
     1. Column
     2. Text
     3. Button
-
+    4. OutlinedTextField
+    5. DropdownMenu
+        5-1. DropdownMenuItem
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -180,20 +186,24 @@ fun DropdownMenuDemo() {
         interactionSource = interactionSourceTest,
         shape = RoundedCornerShape(8.dp),
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            backgroundColor = YellowFFEB3B),
+            backgroundColor = PinkE91E63),
     )
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = { expanded = false },
         modifier = Modifier
             .width(with(LocalDensity.current) {
-                textfieldSize.width.toDp() })
+                textfieldSize.width.toDp() }),
+        offset = DpOffset(10.dp, 10.dp),
+        properties = PopupProperties(focusable = true, dismissOnClickOutside = false, securePolicy = SecureFlagPolicy.SecureOn), // 重要
     ) {
         suggestions.forEach { label ->
             DropdownMenuItem(onClick = {
                 selectedText = label
-                expanded = false
-            }) {
+                expanded = false },
+                modifier = Modifier.background(Teal200),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 20.dp),
+                interactionSource = interactionSourceTest) {    //可以增加按下之類的處理
                 Text(text = label)
             }
         }
