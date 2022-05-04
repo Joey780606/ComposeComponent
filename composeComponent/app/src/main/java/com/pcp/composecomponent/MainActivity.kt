@@ -238,18 +238,6 @@ fun ButtonDemo() {
     }
 }
 
-
-@Composable
-fun SecondScreen(navController: NavController) {
-    Text(text = "Second screen, click me to First Screen",
-        color = Purple200,
-        style = TextStyle(textAlign = TextAlign.Center),
-        modifier = Modifier.clickable(onClick = {
-            navController.navigate("first_screen")
-        })
-    )
-}
-
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
