@@ -14,3 +14,5 @@ val Green4CAF50 = Color(0xFF4CAF50)
 val PinkE91E63 = Color(0xFFE91E63)
 
 val Blue8898F3 = Color(0xFF8898F3)
+
+val BlueFF9979 = Color(0xFFFF9979)
