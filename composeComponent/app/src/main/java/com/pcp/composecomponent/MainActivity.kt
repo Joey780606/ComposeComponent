@@ -23,6 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -30,8 +31,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,7 +48,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pcp.composecomponent.ui.theme.*
-import kotlinx.coroutines.selects.selectUnbiased
 
 /*
   Author: Joey yang
@@ -60,6 +60,11 @@ import kotlinx.coroutines.selects.selectUnbiased
     4. OutlinedTextField
     5. DropdownMenu
         5-1. DropdownMenuItem
+    6. TextField
+    7. OutlinedButton
+    8. OutlinedTextField
+    9. DropdownMenu
+    10. ExposeDropdownMenuBox
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -135,12 +140,15 @@ fun FirstScreen(navController: NavController) {
             )
         }
         ButtonDemo()
-        DropdownMenuDemo()
+        OutlinedButtonDemo()
+        OutlinedTextFieldDropdownMenuDemo()
+        TextFieldDemo()
+        ExposeDropdownMenuBoxDemo()
     }
 }
 
 @Composable
-fun DropdownMenuDemo() {
+fun OutlinedTextFieldDropdownMenuDemo() {
     var expanded by remember { mutableStateOf(false) }
     val suggestions = listOf("Item1", "Item2", "Item3",)
     var selectedText by remember { mutableStateOf("") } //重要: 這會要你 import library,最後AS會直接 import androidx.compose.runtime.*
@@ -167,7 +175,7 @@ fun DropdownMenuDemo() {
         enabled = true,
         readOnly = true,
         textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
-        label = { Text("Label")},
+        label = { Text("OutlinedTextField & DropdownMenu")},
         placeholder = { Text("Enter info") },
         leadingIcon = {    //重要
             Icon(icon2, "contentDescription",
@@ -234,7 +242,119 @@ fun ButtonDemo() {
             contentColor = Color.Red),
         contentPadding = PaddingValues(4.dp, 3.dp, 2.dp, 1.dp),
         onClick = { Log.v("Test", "${pressState.value}")}) {
-        Text(text = "Hello joey 12121212")
+        Text(text = "Button") }
+}
+
+@Composable
+fun TextFieldDemo() {
+    val interactionSourceTest = remember { MutableInteractionSource() }
+    val pressState = interactionSourceTest.collectIsPressedAsState()
+
+    var textInfo by remember { mutableStateOf("TextField") }
+    val icon2 = Icons.Filled.ArrowUpward
+    val icon = Icons.Filled.ArrowDropUp
+    val keyboardOption = KeyboardOptions(autoCorrect = true)   //重要,共有四項,都可以再加
+    val keyboardAction = KeyboardActions(onDone = {})
+
+    TextField(
+        value = textInfo,
+        onValueChange = { textInfo = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        enabled = true,
+        //readOnly = true,
+        readOnly = false,
+        textStyle = TextStyle(color = Color.Blue, fontWeight = FontWeight.Bold),
+        label = { Text("TextField Label")},
+        placeholder = { Text("Enter info") },
+        leadingIcon = {    //重要
+            Icon(icon2, "contentDescription",
+                Modifier.clickable { textInfo = "TextField leading icon click" })
+        },
+        trailingIcon = {    //重要
+            Icon(icon, "contentDescription",
+                Modifier.clickable { textInfo = "TextField trailing icon click" })
+        },
+        isError = false,    //指示是否text fields的目前值是有錯的,若true, label, bottom indicator和 trailingIcon 預設都顯示錯誤的顏色
+        //visualTransformation = PasswordVisualTransformation(), //可看原始碼
+        visualTransformation = VisualTransformation.None,
+        keyboardOptions = keyboardOption,
+        keyboardActions = keyboardAction,
+        singleLine = false,
+        maxLines = 2,
+        interactionSource = interactionSourceTest,
+        shape = RoundedCornerShape(8.dp),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            backgroundColor = YellowEEF88B),
+    )
+}
+
+@Composable
+fun OutlinedButtonDemo() {
+    val interactionSourceTest = remember { MutableInteractionSource() }
+    val pressState = interactionSourceTest.collectIsPressedAsState()
+    val colorMy = if (pressState.value) YellowFFEB3B else Green4CAF50 //Import com.pcp.composecomponent.ui.theme.YellowFFEB3B
+
+    OutlinedButton(
+        onClick = {},
+        modifier = Modifier.fillMaxWidth(1f),
+        enabled = true,
+        interactionSource = interactionSourceTest,
+        elevation = ButtonDefaults.elevation(defaultElevation = 6.dp, pressedElevation = 8.dp),     //注意,這跟官方的文件寫的不太一樣,但是不會有錯誤發生,反而用官方的寫會有錯誤發生
+        shape = MaterialTheme.shapes.large,
+        border = BorderStroke(width = 10.dp, brush = Brush.horizontalGradient(listOf(Purple700, PinkE91E63))),
+        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = colorMy, contentColor = Teal200),
+    ) {
+        Text( color = Purple500,
+            text ="OutlinedButtonDemo")
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ExposeDropdownMenuBoxDemo() {
+    val options = listOf("ExposeDropdownMenuBox 1", "ExposeDropdownMenuBox 2", "ExposeDropdownMenuBox 3", "ExposeDropdownMenuBox 4", "ExposeDropdownMenuBox 5")
+    var expandedValue by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(options[0]) }
+
+    ExposedDropdownMenuBox(
+        expanded = expandedValue,
+        onExpandedChange = {
+            expandedValue = !expandedValue
+        },
+        modifier = Modifier.padding(top = 5.dp)
+    ) {
+        TextField(
+            readOnly = true,
+            value = selectedOptionText,
+            onValueChange = { },
+            label = { Text("Label")},
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expandedValue
+                )
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(backgroundColor = Blue8898F3)  //顏色在此控制
+        )
+        ExposedDropdownMenu(
+            expanded = expandedValue,
+            onDismissRequest = {
+                expandedValue = false
+            },
+            modifier = Modifier.background(Teal200)
+        ) {
+            options.forEach { selectionOption ->
+                DropdownMenuItem(   // DropdownMenuItem 在此project有二個
+                    onClick = {
+                        selectedOptionText = selectionOption
+                        expandedValue = false
+                    }
+                ) {
+                    Text(text = selectionOption)
+                }
+            }
+        }
     }
 }
 
