@@ -70,6 +70,7 @@ import com.pcp.composecomponent.ui.theme.*
        遇到的問題是,從A頁跳到B頁,才使用 BottomNavigationBar, 會有問題,因為NavHost只有一個
        Navigation的頁面可以研究上述這點: https://developer.android.com/jetpack/compose/navigation
     13. Box
+    14. Scaffold
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,10 +91,9 @@ class MainActivity : ComponentActivity() {
                         //second screen
                         SecondScreen(navController = navController)
                     }
-//  想試 BottomNavigationBar, 但還有問題
-//                    composable("third_screen") {
-//                        ThirdScreen(navControllerFrom = navController)
-//                    }
+                    composable("third_screen") {
+                        ThirdScreen(navControllerFrom = navController)
+                    }
                 }
             }
         }
@@ -175,6 +175,59 @@ fun BoxDemo() {
     }
 }
 
+@Composable
+fun ThirdScreen(navControllerFrom: NavController) {
+    val scaffoldState = rememberScaffoldState(rememberDrawerState(DrawerValue.Open))
+
+    val visibleState:MutableState<Boolean> =
+        remember { mutableStateOf(true) }
+    val snackBarMessage:MutableState<String> =
+        remember { mutableStateOf("This is a snackbar") }
+    Log.v("TAG", "Third screen: ${scaffoldState.toString()}")
+    Scaffold(
+        modifier = Modifier.padding(5.dp),
+        scaffoldState = scaffoldState,
+        topBar = { TopAppBar(title = { Text("TopAppBar")},
+            backgroundColor = BlueFF9979)   //還可以再伸展
+        }, //是一個 @Composable () -> Unit = {} 的型態
+        bottomBar = { BottomAppBar(backgroundColor = YellowEEF88B) {
+            Text("BottomAppBar")
+        }},
+        snackbarHost = {
+            if (visibleState.value){
+                Snackbar(
+                    action = {
+                        TextButton(
+                            onClick = { visibleState.value = false }
+                        ) {
+                            Text(text = "Hide")
+                        }
+                    },
+                    content = {
+                        Text(text = snackBarMessage.value)
+                    },
+                    backgroundColor = Color(0xFFFF9966)
+                )
+            }
+        },
+        floatingActionButton = { FloatingActionButton(onClick = {}) {
+            Text("X")
+        } },
+        floatingActionButtonPosition = FabPosition.End,
+        isFloatingActionButtonDocked = false,
+        drawerContent = { Text(text = "drawerContent") },
+        drawerGesturesEnabled = true,
+        drawerShape = MaterialTheme.shapes.medium,
+        drawerElevation = 10.dp,
+        drawerBackgroundColor = Green1BFD02,
+        drawerContentColor = GrayBBBABA,
+        drawerScrimColor = YellowFFEB3B,
+        backgroundColor = BlueFF9979,
+        contentColor = Teal200,
+        content = { Text("BodyContent") },
+
+    )
+}
 /*
 @Composable
 fun ThirdScreen(navControllerFrom: NavController) {

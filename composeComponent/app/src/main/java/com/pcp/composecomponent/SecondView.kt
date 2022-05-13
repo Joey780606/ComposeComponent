@@ -58,7 +58,7 @@ fun SecondScreen(navController: NavController) {
             .fillMaxSize()
     ) {
         Text(
-            text = "Second screen, click me to First Screen",
+            text = "Second screen, click me to Third Screen",
             color = Purple200,
             style = TextStyle(textAlign = TextAlign.Center),
             modifier = Modifier.clickable(onClick = {
