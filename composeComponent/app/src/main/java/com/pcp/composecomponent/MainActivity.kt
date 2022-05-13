@@ -15,12 +15,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -44,8 +42,10 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.pcp.composecomponent.ui.theme.*
 
@@ -65,6 +65,11 @@ import com.pcp.composecomponent.ui.theme.*
     8. OutlinedTextField
     9. DropdownMenu
     10. ExposeDropdownMenuBox
+    11. Badge  //https://www.youtube.com/watch?v=4xyRnIntwTo
+    12. BottomNavigationBar
+       遇到的問題是,從A頁跳到B頁,才使用 BottomNavigationBar, 會有問題,因為NavHost只有一個
+       Navigation的頁面可以研究上述這點: https://developer.android.com/jetpack/compose/navigation
+    13. Box
  */
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,6 +90,10 @@ class MainActivity : ComponentActivity() {
                         //second screen
                         SecondScreen(navController = navController)
                     }
+//  想試 BottomNavigationBar, 但還有問題
+//                    composable("third_screen") {
+//                        ThirdScreen(navControllerFrom = navController)
+//                    }
                 }
             }
         }
@@ -144,6 +153,78 @@ fun FirstScreen(navController: NavController) {
         OutlinedTextFieldDropdownMenuDemo()
         TextFieldDemo()
         ExposeDropdownMenuBoxDemo()
+        BoxDemo()
+    }
+}
+
+@Composable
+fun BoxDemo() {
+    Box(modifier = Modifier.size(100.dp, 100.dp)
+        .background(color = YellowFFEB3B),
+      contentAlignment = Alignment.BottomEnd,
+      propagateMinConstraints = false)
+      //propagateMinConstraints : Box沒有設定固定尺寸,並且設定了最小尺寸,是否將最小尺寸值設定給子View,在此例中, true, false會有變化
+    {
+        Text("Test1")
+        Box(modifier = Modifier.align(Alignment.TopCenter).
+            fillMaxHeight().
+            width(50.dp).
+            background(color = PinkE91E63)
+        )
+        Text("Test2")
+    }
+}
+
+/*
+@Composable
+fun ThirdScreen(navControllerFrom: NavController) {
+    val navControllerV2 = rememberNavController()
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(
+                items = listOf(
+                    BottomNavItem(
+                        name = "Home",
+                        route = "three_home_view",
+                        icon = Icons.Default.Home
+                    ),
+                    BottomNavItem(
+                        name = "Chat",
+                        route = "three_chat_view",
+                        icon = Icons.Default.Notifications
+                    ),
+                    BottomNavItem(
+                        name = "Setting",
+                        route = "three_setting_view",
+                        icon = Icons.Default.Settings
+                    ),
+                ),
+                navController = navControllerV2,
+                onItemClick = {
+                    navControllerV2.navigate(it.route)
+                }
+            )
+        }
+    ) {
+        //Text("Hello Joey")
+        NavigationThird(navController = navControllerV2)
+    }
+}
+
+ */
+
+@Composable
+fun NavigationThird(navController: NavHostController) {
+    NavHost(navController = navController, startDestination = "home") {
+        composable("three_home_view") {
+            ThreeHomeView(navController = navController)
+        }
+        composable("three_chat_view") {
+            ThreeChatView(navController = navController)
+        }
+        composable("three_setting_view") {
+            ThreeSettingView(navController = navController)
+        }
     }
 }
 
@@ -354,6 +435,58 @@ fun ExposeDropdownMenuBoxDemo() {
                     Text(text = selectionOption)
                 }
             }
+        }
+    }
+}
+
+//Badge Step 01: Create BottomNavigationBar
+// Reference : https://www.youtube.com/watch?v=4xyRnIntwTo
+@Composable
+fun BottomNavigationBar(
+    items: List<BottomNavItem>,
+    navController: NavController,    //可判斷在那頁,就可以突顯表示相關的圖案
+    modifier: Modifier = Modifier,
+    onItemClick: (BottomNavItem) -> Unit
+) {
+    val backStackEntry = navController.currentBackStackEntryAsState()   //重要,記得 backStack的 Entry
+    BottomNavigation(
+        modifier = modifier,
+        backgroundColor = Color.DarkGray,
+        elevation = 5.dp
+    ) {
+        items.forEach { item ->
+            val selectedRoute = item.route == backStackEntry.value?.destination?.route  //重要,判斷目前是那頁被選取
+            BottomNavigationItem(
+                //selected = item.route == navController.currentDestination?.route,   //重要,判斷目前是那頁被選取,後來改拉到前面
+                selected = selectedRoute,
+                onClick = { onItemClick(item) },
+                selectedContentColor = Color.Green,
+                unselectedContentColor = Color.Gray,
+                icon = {
+                    Column(horizontalAlignment = CenterHorizontally) {
+                        if(item.badgeCount > 0) {
+                            BadgedBox(  //重要,已改成 BadgedBox,不是 BadgeBox
+                                badge = {
+                                    Text(text = item.badgeCount.toString())
+                                }
+                            ) {
+                                Icon(imageVector = item.icon,
+                                    contentDescription = item.name)
+                            }
+                        } else {
+                            Icon(imageVector = item.icon,
+                                contentDescription = item.name)
+                        }
+                        if(selectedRoute) { //重要,跟Youtube的有點不同
+                            Text(
+                                text = item.name,
+                                textAlign = TextAlign.Center,
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
+                }
+            )
         }
     }
 }

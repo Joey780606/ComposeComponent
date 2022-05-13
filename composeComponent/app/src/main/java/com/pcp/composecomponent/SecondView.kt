@@ -62,11 +62,68 @@ fun SecondScreen(navController: NavController) {
             color = Purple200,
             style = TextStyle(textAlign = TextAlign.Center),
             modifier = Modifier.clickable(onClick = {
-                navController.navigate("first_screen")
+                navController.navigate("third_screen")
             })
         )
         Tabs(pagerState = pagerState)
         TabsContent(pagerState = pagerState, viewModel, navController)
+    }
+}
+
+@Composable
+fun ThreeHomeView(navController: NavController) {
+    val viewModel: SecondViewModel = viewModel()
+    Column(
+        modifier = Modifier
+            .background(YellowEEF88B, shape = RoundedCornerShape(8.dp))
+            .fillMaxSize()
+    ) {
+        Text(
+            text = "Three home view, click me to First Screen",
+            color = Purple200,
+            style = TextStyle(textAlign = TextAlign.Center),
+            modifier = Modifier.clickable(onClick = {
+                navController.navigate("first_screen")
+            })
+        )
+    }
+}
+
+@Composable
+fun ThreeChatView(navController: NavController) {
+    val viewModel: SecondViewModel = viewModel()
+    Column(
+        modifier = Modifier
+            .background(YellowEEF88B, shape = RoundedCornerShape(8.dp))
+            .fillMaxSize()
+    ) {
+        Text(
+            text = "Three chat view, click me to First Screen",
+            color = Purple200,
+            style = TextStyle(textAlign = TextAlign.Center),
+            modifier = Modifier.clickable(onClick = {
+                navController.navigate("first_screen")
+            })
+        )
+    }
+}
+
+@Composable
+fun ThreeSettingView(navController: NavController) {
+    val viewModel: SecondViewModel = viewModel()
+    Column(
+        modifier = Modifier
+            .background(YellowEEF88B, shape = RoundedCornerShape(8.dp))
+            .fillMaxSize()
+    ) {
+        Text(
+            text = "Three setting view, click me to First Screen",
+            color = Purple200,
+            style = TextStyle(textAlign = TextAlign.Center),
+            modifier = Modifier.clickable(onClick = {
+                navController.navigate("first_screen")
+            })
+        )
     }
 }
 
